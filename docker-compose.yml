@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: ./pseudo_roulette
+      dockerfile: Dockerfile
+    command:
+      - gunicorn
+      - pseudo_roulette.wsgi:application
+      - --bind
+      - "0.0.0.0:8000"
+    volumes:
+      - ./pseudo_roulette:/app
+    ports:
+      - 8000:8000
+    restart: always
+    depends_on:
+      - pgdb
+    env_file:
+      - ./.env
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "10"
+        max-size: "200k"
+
+  pgdb:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=pseudo_roulette
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=55660078aA
+    container_name: pgdb
+    volumes:
+      - pgdbdata:/var/lib/postgresql/data/
+
+
+volumes:
+  pgdbdata:
